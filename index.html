@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visitenkarte scannen</title>
-  <!-- Einbindung von Tesseract.js für OCR -->
+  <!-- Tesseract.js für OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
   <style>
-    /* CSS für Styling */
+    /* Styling */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
@@ -39,6 +39,7 @@
     p {
       font-size: 16px;
       color: #333;
+      white-space: pre-wrap; /* Logs korrekt formatieren */
     }
   </style>
 </head>
@@ -48,15 +49,21 @@
   <canvas id="canvas" style="display:none;"></canvas>
   <button id="switch">Kamera wechseln</button>
   <button id="capture">Scannen</button>
-  <p id="result"></p>
+  <p id="result">Logs erscheinen hier:</p>
 
   <script>
+    // Variablen
     let currentFacingMode = "user"; // Standardmäßig Frontkamera
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const result = document.getElementById('result');
     const switchButton = document.getElementById('switch');
     const captureButton = document.getElementById('capture');
+
+    // Debugging-Logs in der Seite anzeigen
+    console.log = (message) => {
+      result.textContent += `\n${message}`;
+    };
 
     // Kamera starten
     function startCamera(facingMode) {
@@ -87,11 +94,11 @@
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const image = canvas.toDataURL('image/png');
-        result.textContent = "Bild wird verarbeitet...";
+        console.log("Bild aufgenommen! Verarbeite Bild mit OCR...");
         processImage(image);
       } catch (error) {
         console.error("Fehler beim Aufnehmen des Bildes:", error);
-        result.textContent = "Fehler beim Verarbeiten des Bildes.";
+        result.textContent += "\nFehler beim Verarbeiten des Bildes.";
       }
     });
 
@@ -101,14 +108,16 @@
       const worker = createWorker();
 
       try {
+        console.log("OCR-Prozess gestartet...");
         await worker.load();
-        await worker.loadLanguage('eng');
-        await worker.initialize('eng');
+        await worker.loadLanguage('eng'); // Oder 'deu' für Deutsch
+        await worker.initialize('eng');  // Oder 'deu'
         const { data: { text } } = await worker.recognize(image);
-        result.textContent = `Erkannter Text: ${text}`;
+        console.log("Erkannter Text:", text);
+        result.textContent += `\nErkannter Text: ${text}`;
       } catch (error) {
-        console.error("Fehler bei OCR:", error);
-        result.textContent = "Texterkennung fehlgeschlagen.";
+        console.error("Fehler bei der Texterkennung:", error);
+        result.textContent += "\nTexterkennung fehlgeschlagen.";
       } finally {
         await worker.terminate();
       }
