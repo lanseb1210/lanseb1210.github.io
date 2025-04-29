@@ -20,8 +20,10 @@
 
         try {
           output.innerHTML = "Warte auf ein NFC-Tag...";
-          await ndef.scan();
+          output.innerHTML ="Starte NFC-Scan...";
 
+          await ndef.scan();
+          output.innerHTML= "Scan gestartet, warte auf ein Tag...";
           ndef.onreading = (event) => {
             output.innerHTML = ""; // Vorherige Daten löschen
             const message = event.message;
