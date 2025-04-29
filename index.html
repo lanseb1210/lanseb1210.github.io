@@ -1,11 +1,50 @@
 <!DOCTYPE html>
 <html lang="de">
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visitenkarte scannen</title>
+  <!-- Einbindung von Tesseract.js für OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
+  <style>
+    /* CSS direkt eingebunden */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #f4f4f9;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    video {
+      width: 80%;
+      max-width: 500px;
+      border: 2px solid #ccc;
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      color: #fff;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    p {
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
   <h1>Scanne eine Visitenkarte</h1>
@@ -15,6 +54,7 @@
   <p id="result"></p>
 
   <script>
+    // JavaScript direkt eingebunden
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const result = document.getElementById('result');
@@ -43,6 +83,8 @@
       const { createWorker } = Tesseract;
       const worker = createWorker();
 
+      result.textContent = "Verarbeite das Bild...";
+      
       await worker.load();
       await worker.loadLanguage('eng');
       await worker.initialize('eng');
