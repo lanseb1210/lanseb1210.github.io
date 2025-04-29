@@ -25,7 +25,7 @@
           await ndef.scan();
           output.innerHTML= "Scan gestartet, warte auf ein Tag...";
           ndef.onreading = (event) => {
-            output.innerHTML = ""; // Vorherige Daten löschen
+            //output.innerHTML = ""; // Vorherige Daten löschen
             const message = event.message;
 
             message.records.forEach(record => {
