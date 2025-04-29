@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NFC-Leser</title>
+</head>
+<body>
+  <h1>NFC-Daten auslesen</h1>
+  <button id="scanButton">NFC-Scan starten</button>
+  <div id="output"></div>
+
+  <script>
+    if ('NDEFReader' in window) {
+      const scanButton = document.getElementById('scanButton');
+      const output = document.getElementById('output');
+
+      scanButton.addEventListener('click', async () => {
+        const ndef = new NDEFReader();
+
+        try {
+          output.innerHTML = "Warte auf ein NFC-Tag...";
+          await ndef.scan();
+
+          ndef.onreading = (event) => {
+            output.innerHTML = ""; // Vorherige Daten löschen
+            const message = event.message;
+
+            message.records.forEach(record => {
+              const textDecoder = new TextDecoder(record.encoding);
+              const recordData = textDecoder.decode(record.data);
+
+              // Daten anzeigen
+              const recordElement = document.createElement('p');
+              recordElement.textContent = `Datentyp: ${record.recordType}, Inhalt: ${recordData}`;
+              output.appendChild(recordElement);
+            });
+          };
+        } catch (error) {
+          output.innerHTML = `Fehler: ${error.message}`;
+        }
+      });
+    } else {
+      document.body.innerHTML = "<p>Web NFC wird in diesem Browser nicht unterstützt.</p>";
+    }
+  </script>
+</body>
+</html>
