@@ -4,29 +4,41 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Visitenkarte scannen</title>
+  <!-- Einbindung von Tesseract.js für OCR -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js"></script>
   <style>
+    /* CSS für Styling */
     body {
       font-family: Arial, sans-serif;
       text-align: center;
+      background-color: #f4f4f9;
       padding: 20px;
+    }
+    h1 {
+      color: #333;
     }
     video {
       width: 80%;
       max-width: 500px;
       border: 2px solid #ccc;
+      margin-bottom: 20px;
     }
     button {
       padding: 10px 20px;
-      background-color: #007bff;
+      font-size: 16px;
       color: #fff;
+      background-color: #007bff;
       border: none;
       border-radius: 5px;
-      margin-top: 20px;
       cursor: pointer;
+      margin: 5px;
     }
     button:hover {
       background-color: #0056b3;
+    }
+    p {
+      font-size: 16px;
+      color: #333;
     }
   </style>
 </head>
@@ -34,25 +46,38 @@
   <h1>Visitenkarte scannen</h1>
   <video id="video" autoplay></video>
   <canvas id="canvas" style="display:none;"></canvas>
+  <button id="switch">Kamera wechseln</button>
   <button id="capture">Scannen</button>
   <p id="result"></p>
 
   <script>
+    let currentFacingMode = "user"; // Standardmäßig Frontkamera
     const video = document.getElementById('video');
     const canvas = document.getElementById('canvas');
     const result = document.getElementById('result');
+    const switchButton = document.getElementById('switch');
     const captureButton = document.getElementById('capture');
 
     // Kamera starten
-    navigator.mediaDevices.getUserMedia({ video: true })
+    function startCamera(facingMode) {
+      navigator.mediaDevices.getUserMedia({
+        video: { facingMode: facingMode }
+      })
       .then(stream => {
         video.srcObject = stream;
-        console.log("Kamera aktiviert!");
+        console.log(`Kamera mit Modus "${facingMode}" aktiviert.`);
       })
       .catch(err => {
         console.error("Kamera konnte nicht aktiviert werden:", err);
-        result.textContent = "Fehler: Kamera konnte nicht aktiviert werden.";
+        result.textContent = "Fehler: Kamera konnte nicht gestartet werden.";
       });
+    }
+
+    // Kamera-Umschaltung
+    switchButton.addEventListener('click', () => {
+      currentFacingMode = (currentFacingMode === "user") ? "environment" : "user";
+      startCamera(currentFacingMode);
+    });
 
     // Bild aufnehmen und mit OCR verarbeiten
     captureButton.addEventListener('click', () => {
@@ -70,6 +95,7 @@
       }
     });
 
+    // OCR-Verarbeitung
     async function processImage(image) {
       const { createWorker } = Tesseract;
       const worker = createWorker();
@@ -82,11 +108,14 @@
         result.textContent = `Erkannter Text: ${text}`;
       } catch (error) {
         console.error("Fehler bei OCR:", error);
-        result.textContent = "Fehler bei der Texterkennung.";
+        result.textContent = "Texterkennung fehlgeschlagen.";
       } finally {
         await worker.terminate();
       }
     }
+
+    // Standardmäßig die Frontkamera starten
+    startCamera(currentFacingMode);
   </script>
 </body>
 </html>
